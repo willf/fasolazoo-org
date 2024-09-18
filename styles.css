@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Cooper+Black&display=swap");
+
+body {
+  font-family: "Georgia", serif;
+  background-color: #f4f4f4;
+  color: #333;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  font-weight: 400;
+  font-style: normal;
+}
+
+header {
+  background-color: #fff;
+  padding: 20px;
+  border-bottom: 2px solid #ccc;
+  font-style: normal;
+}
+
+h1 {
+  font-family: "Caprasimo", sans-serif;
+  font-size: 3em;
+  margin: 0;
+}
+
+main {
+  padding: 20px;
+}
+
+.photo img {
+  max-width: 75%;
+  border: 0px solid #ccc;
+  margin: 20px 0;
+}
+
+.announcements {
+  background-color: #fff;
+  padding: 20px;
+  border: 2px solid #ccc;
+  margin: 20px 0;
+}
+
+footer {
+  background-color: #fff;
+  padding: 10px;
+  border-top: 2px solid #ccc;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
