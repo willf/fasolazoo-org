@@ -29,9 +29,9 @@ main {
 }
 
 .photo img {
-  max-width: 75%;
+  max-width: 55%;
   border: 0px solid #ccc;
-  margin: 20px 0;
+  margin: 5px 0;
 }
 
 .announcements {
