@@ -1,43 +1,86 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+# Deploy website to GitHub Pages using modern Node/static best practices
+name: Deploy site to Pages
+
+env:
+  SITE_OUTPUT_DIR: dist
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Pages
+
+      - name: Setup Node.js
+        if: ${{ hashFiles('package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Configure Pages
         uses: actions/configure-pages@v5
+
+      - name: Build site
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p _site
+
+          if [[ -f package.json ]]; then
+            echo "Detected package.json: running Node build."
+
+            if [[ -f package-lock.json || -f npm-shrinkwrap.json ]]; then
+              npm ci
+            else
+              npm install --no-fund --no-audit
+            fi
+
+            npm run build
+
+            if [[ ! -d "$SITE_OUTPUT_DIR" ]]; then
+              echo "::error::Build completed, but output directory '$SITE_OUTPUT_DIR' was not found."
+              exit 1
+            fi
+
+            echo "Using build output directory: $SITE_OUTPUT_DIR"
+            cp -a "$SITE_OUTPUT_DIR"/. _site/
+          else
+            echo "No package.json found: deploying static files from repository root."
+            rsync -av --delete \
+              --exclude '.git' \
+              --exclude '.github' \
+              --exclude '_site' \
+              ./ _site/
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: _site
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
