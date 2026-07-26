@@ -12,6 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="styles.css" />
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -122,10 +123,12 @@
     </style>
   </head>
   <body class="font-arcade-body antialiased min-h-screen relative pb-12">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <header
       class="max-w-4xl mx-auto mt-4 bg-arcade-panel border-4 border-arcade-cyan shadow-[0_0_15px_#00ffff] relative z-10 px-4 py-3"
     >
       <nav
+        aria-label="Primary"
         class="flex flex-wrap items-center gap-3 md:gap-5 font-arcade-body text-xl text-arcade-yellow"
       >
         <a href="index.html" class="hover:text-arcade-cyan">HOME</a>
@@ -146,6 +149,7 @@
     <div class="flicker"></div>
 
     <main
+      id="main-content"
       class="max-w-4xl mx-auto mt-4 md:mt-6 bg-arcade-panel border-4 border-arcade-cyan shadow-[0_0_15px_#00ffff] relative z-10"
     >
       <header
@@ -386,9 +390,7 @@
             >
           </div>
           <p class="mt-5 font-semibold">
-            <a
-              href="index.html"
-              class="inline-block px-3 py-1 rounded-md border border-gray-500 bg-gray-700 hover:bg-gray-600 no-underline text-white"
+            <a href="index.html" class="footer-home-link"
               >Kalamazoo Sacred Harp</a
             >
           </p>
