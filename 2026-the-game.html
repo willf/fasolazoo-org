@@ -1,536 +1,687 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kalamazoo Singing '26 - The Game</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Press Start 2P for headings, VT323 for readable body text -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        arcade: {
-                            bg: '#0a0a0a',
-                            panel: '#111111',
-                            green: '#39ff14',
-                            cyan: '#00ffff',
-                            magenta: '#ff00ff',
-                            yellow: '#ffff00',
-                            orange: '#ff5500',
-                            white: '#f8f8ff'
-                        }
-                    },
-                    fontFamily: {
-                        'arcade-title': ['"Press Start 2P"', 'cursive'],
-                        'arcade-body': ['"VT323"', 'monospace']
-                    },
-                    boxShadow: {
-                        'neon-green': '0 0 5px theme("colors.arcade.green"), 0 0 20px theme("colors.arcade.green")',
-                        'neon-cyan': '4px 4px 0px 0px theme("colors.arcade.cyan")',
-                        'neon-magenta': '4px 4px 0px 0px theme("colors.arcade.magenta")',
-                        'neon-yellow': '4px 4px 0px 0px theme("colors.arcade.yellow")',
-                    }
-                }
-            }
-        }
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              arcade: {
+                bg: "#0a0a0a",
+                panel: "#111111",
+                green: "#39ff14",
+                cyan: "#00ffff",
+                magenta: "#ff00ff",
+                yellow: "#ffff00",
+                orange: "#ff5500",
+                white: "#f8f8ff",
+              },
+            },
+            fontFamily: {
+              "arcade-title": ['"Press Start 2P"', "cursive"],
+              "arcade-body": ['"VT323"', "monospace"],
+            },
+            boxShadow: {
+              "neon-green":
+                '0 0 5px theme("colors.arcade.green"), 0 0 20px theme("colors.arcade.green")',
+              "neon-cyan": '4px 4px 0px 0px theme("colors.arcade.cyan")',
+              "neon-magenta": '4px 4px 0px 0px theme("colors.arcade.magenta")',
+              "neon-yellow": '4px 4px 0px 0px theme("colors.arcade.yellow")',
+            },
+          },
+        },
+      };
     </script>
 
     <style>
-        body {
-            background-color: #050505;
-            color: #39ff14;
-        }
+      body {
+        background-color: #050505;
+        color: #39ff14;
+      }
 
-        /* CRT Scanline Overlay */
-        .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.2) 50%,
-                rgba(0,0,0,0.2)
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 9999;
-        }
+      /* CRT Scanline Overlay */
+      .scanlines {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0),
+          rgba(255, 255, 255, 0) 50%,
+          rgba(0, 0, 0, 0.2) 50%,
+          rgba(0, 0, 0, 0.2)
+        );
+        background-size: 100% 4px;
+        pointer-events: none;
+        z-index: 9999;
+      }
 
-        /* Screen Flicker */
-        .flicker {
-            animation: flicker 0.15s infinite;
-            pointer-events: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.02);
-            z-index: 9998;
-        }
+      /* Screen Flicker */
+      .flicker {
+        animation: flicker 0.15s infinite;
+        pointer-events: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.02);
+        z-index: 9998;
+      }
 
-        @keyframes flicker {
-            0% { opacity: 0.1; }
-            50% { opacity: 0.2; }
-            100% { opacity: 0.1; }
+      @keyframes flicker {
+        0% {
+          opacity: 0.1;
         }
+        50% {
+          opacity: 0.2;
+        }
+        100% {
+          opacity: 0.1;
+        }
+      }
 
-        .blink {
-            animation: blinker 1s linear infinite;
-        }
+      .blink {
+        animation: blinker 1s linear infinite;
+      }
 
-        @keyframes blinker {
-            50% { opacity: 0; }
+      @keyframes blinker {
+        50% {
+          opacity: 0;
         }
+      }
 
-        /* Game Canvas specific styling */
-        #gameCanvas {
-            image-rendering: pixelated; /* Gives crisp lines */
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
+      /* Game Canvas specific styling */
+      #gameCanvas {
+        image-rendering: pixelated; /* Gives crisp lines */
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
 
-        /* Retro borders */
-        .arcade-border {
-            border: 4px solid #fff;
-            border-image-slice: 1;
-            border-image-source: linear-gradient(to bottom right, #00ffff, #ff00ff);
-        }
+      /* Retro borders */
+      .arcade-border {
+        border: 4px solid #fff;
+        border-image-slice: 1;
+        border-image-source: linear-gradient(to bottom right, #00ffff, #ff00ff);
+      }
     </style>
-</head>
-<body class="font-arcade-body antialiased min-h-screen relative pb-12">
-    
+  </head>
+  <body class="font-arcade-body antialiased min-h-screen relative pb-12">
+    <header
+      class="max-w-4xl mx-auto mt-4 bg-arcade-panel border-4 border-arcade-cyan shadow-[0_0_15px_#00ffff] relative z-10 px-4 py-3"
+    >
+      <nav
+        class="flex flex-wrap items-center gap-3 md:gap-5 font-arcade-body text-xl text-arcade-yellow"
+      >
+        <a href="index.html" class="hover:text-arcade-cyan">HOME</a>
+        <a href="about.html" class="hover:text-arcade-cyan">ABOUT</a>
+        <a href="minutes.html" class="hover:text-arcade-cyan">2026 MINUTES</a>
+        <a href="2026.html" class="hover:text-arcade-cyan">2026 INFO</a>
+        <a
+          href="2026-the-game.html"
+          aria-current="page"
+          class="font-black text-arcade-cyan underline decoration-2 underline-offset-4"
+          >2026 GAME</a
+        >
+      </nav>
+    </header>
+
     <!-- Visual Overlays -->
     <div class="scanlines"></div>
     <div class="flicker"></div>
 
-    <main class="max-w-4xl mx-auto mt-4 md:mt-8 bg-arcade-panel border-4 border-arcade-cyan shadow-[0_0_15px_#00ffff] relative z-10">
-        
-        <header class="relative w-full h-[400px] md:h-[500px] bg-black border-b-4 border-arcade-magenta overflow-hidden group cursor-pointer" id="gameArea">
-            
-            <canvas id="gameCanvas"></canvas>
-            
-            <!-- HTML UI Overlay (Title Screen) -->
-            <div id="game-ui-start" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
-                <p class="font-arcade-body text-arcade-yellow text-xl md:text-3xl mb-2 tracking-widest uppercase">Select Player: You</p>
-                
-                <h1 class="font-arcade-title text-xl md:text-3xl lg:text-4xl leading-loose mb-6 text-arcade-white drop-shadow-[0_0_10px_#fff]">
-                    <span class="text-arcade-cyan block mb-4">KALAMAZOO</span>
-                    ALL-DAY SINGING
-                </h1>
-                
-                <p class="font-arcade-body text-2xl text-arcade-magenta mb-8 uppercase bg-arcade-bg px-4 py-2 border-2 border-arcade-magenta">
-                    & Dinner on the Grounds
-                </p>
-                
-                <div class="blink font-arcade-title text-sm md:text-base text-arcade-green">
-                    > CLICK OR TAP TO START GAME <
-                </div>
-            </div>
+    <main
+      class="max-w-4xl mx-auto mt-4 md:mt-6 bg-arcade-panel border-4 border-arcade-cyan shadow-[0_0_15px_#00ffff] relative z-10"
+    >
+      <header
+        class="relative w-full h-[400px] md:h-[500px] bg-black border-b-4 border-arcade-magenta overflow-hidden group cursor-pointer"
+        id="gameArea"
+      >
+        <canvas id="gameCanvas"></canvas>
 
-            <!-- HTML UI Overlay (Game Over) -->
-            <div id="game-ui-over" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/90 hidden transition-opacity duration-300">
-                <h2 class="font-arcade-title text-4xl text-red-500 mb-6 blink">GAME OVER</h2>
-                <p class="font-arcade-body text-3xl text-arcade-white mb-2">NOTES CAUGHT: <span id="final-score" class="text-arcade-yellow">0</span></p>
-                <p class="font-arcade-body text-xl text-arcade-cyan mb-8">Good singing!</p>
-                <button id="btn-restart" class="font-arcade-title text-sm px-6 py-4 bg-arcade-magenta text-white border-4 border-white hover:bg-white hover:text-arcade-magenta transition-colors">
-                    TRY AGAIN
-                </button>
-            </div>
-            
-            <!-- Mobile Controls Notice -->
-            <div id="mobile-controls" class="absolute bottom-2 left-0 w-full text-center hidden pointer-events-none">
-                <p class="font-arcade-body text-arcade-white/50 text-sm blink">Drag finger to move paddle</p>
-            </div>
-        </header>
+        <!-- HTML UI Overlay (Title Screen) -->
+        <div
+          id="game-ui-start"
+          class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/80 backdrop-blur-sm transition-opacity duration-300"
+        >
+          <p
+            class="font-arcade-body text-arcade-yellow text-xl md:text-3xl mb-2 tracking-widest uppercase"
+          >
+            Select Player: You
+          </p>
 
-        <div class="p-6 md:p-8 space-y-8 bg-arcade-bg bg-opacity-90">
-            
-            <!-- Event Date Strip -->
-            <div class="w-full bg-arcade-cyan text-arcade-bg p-4 flex justify-between items-center font-arcade-title text-xs md:text-sm shadow-[4px_4px_0_0_#ff00ff]">
-                <span>STAGE 1: KALAMAZOO</span>
-                <span>SUN. JULY 19, 2026</span>
-            </div>
+          <h1
+            class="font-arcade-title text-xl md:text-3xl lg:text-4xl leading-loose mb-6 text-arcade-white drop-shadow-[0_0_10px_#fff]"
+          >
+            <span class="text-arcade-cyan block mb-4">KALAMAZOO</span>
+            ALL-DAY SINGING
+          </h1>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                <div class="space-y-8">
-                    <!-- Venue Box -->
-                    <section class="arcade-border p-6 bg-arcade-panel relative group">
-                        <div class="absolute -top-4 -right-4 bg-arcade-magenta text-arcade-white font-arcade-title text-xs px-3 py-2 blink shadow-neon-magenta transform rotate-3">
-                            ! NEW VENUE !
-                        </div>
-                        <h2 class="font-arcade-title text-arcade-yellow text-sm md:text-base mb-4 border-b-2 border-arcade-yellow/30 pb-2">LOCATION MAP</h2>
-                        <h3 class="font-arcade-body text-3xl text-arcade-white mb-2">Kalamazoo Nature Center</h3>
-                        <p class="font-arcade-body text-xl text-arcade-green mb-4">
-                            7000 North Westnedge Avenue<br>
-                            Kalamazoo MI 49009
-                        </p>
-                        <div class="bg-arcade-bg border border-arcade-cyan p-3 font-arcade-body text-lg text-arcade-cyan">
-                            * System Note: All attendees have access to building/grounds until 5:00 PM.
-                        </div>
-                    </section>
+          <p
+            class="font-arcade-body text-2xl text-arcade-magenta mb-8 uppercase bg-arcade-bg px-4 py-2 border-2 border-arcade-magenta"
+          >
+            & Dinner on the Grounds
+          </p>
 
-                    <!-- Singing Book Box -->
-                    <section class="border-2 border-arcade-yellow p-6 shadow-neon-yellow">
-                        <h2 class="font-arcade-title text-arcade-yellow text-sm mb-4">EQUIPMENT LOADOUT</h2>
-                        <p class="font-arcade-body text-2xl text-arcade-white">
-                            Singing from:<br>
-                            <span class="text-arcade-magenta font-bold">2025 Edition of The Sacred Harp</span>
-                        </p>
-                        <p class="font-arcade-body text-lg text-arcade-green mt-2">> Loaners available in inventory</p>
-                    </section>
-                </div>
+          <div
+            class="blink font-arcade-title text-sm md:text-base text-arcade-green"
+          >
+            > CLICK OR TAP TO START GAME <
+          </div>
+        </div>
 
-                <div class="space-y-8">
-                    
-                    <!-- Schedule Box -->
-                    <section class="border-2 border-arcade-green p-6 shadow-[4px_4px_0_0_#39ff14] bg-black">
-                        <h2 class="font-arcade-title text-arcade-green text-sm mb-6 flex items-center gap-2">
-                            <span class="text-xl">⏱</span> LEVEL TIMERS
-                        </h2>
-                        <ul class="font-arcade-body text-2xl space-y-4">
-                            <li class="flex items-start gap-4">
-                                <span class="text-arcade-yellow w-24">09:00am</span>
-                                <div class="text-arcade-white">
-                                    Gate Opens<br>
-                                    <span class="text-arcade-cyan text-lg">Free entry for players (singers)</span>
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-4 border-t border-dashed border-gray-700 pt-4">
-                                <span class="text-arcade-yellow w-24">09:30am</span>
-                                <span class="text-arcade-white">Registration</span>
-                            </li>
-                            <li class="flex items-start gap-4 border-t border-dashed border-gray-700 pt-4">
-                                <span class="text-arcade-yellow w-24">10:00am</span>
-                                <span class="text-arcade-white">Singing Begins (Main Event)</span>
-                            </li>
-                        </ul>
-                    </section>
+        <!-- HTML UI Overlay (Game Over) -->
+        <div
+          id="game-ui-over"
+          class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/90 hidden transition-opacity duration-300"
+        >
+          <h2 class="font-arcade-title text-4xl text-red-500 mb-6 blink">
+            GAME OVER
+          </h2>
+          <p class="font-arcade-body text-3xl text-arcade-white mb-2">
+            NOTES CAUGHT:
+            <span id="final-score" class="text-arcade-yellow">0</span>
+          </p>
+          <p class="font-arcade-body text-xl text-arcade-cyan mb-8">
+            Good singing!
+          </p>
+          <button
+            id="btn-restart"
+            class="font-arcade-title text-sm px-6 py-4 bg-arcade-magenta text-white border-4 border-white hover:bg-white hover:text-arcade-magenta transition-colors"
+          >
+            TRY AGAIN
+          </button>
+        </div>
 
-                    <!-- Dinner & Health Info -->
-                    <section class="grid grid-cols-1 gap-4">
-                        <div class="bg-arcade-orange/20 border border-arcade-orange p-4 text-center">
-                            <h2 class="font-arcade-title text-arcade-orange text-xs mb-2">POWER-UPS: DINNER</h2>
-                            <p class="font-arcade-body text-xl text-white">
-                                Local & regional singers: please support the mid-day meal with prepared food to share!
-                            </p>
-                        </div>
-                        
-                        <div class="bg-red-900/40 border border-red-500 p-4">
-                            <h2 class="font-arcade-title text-red-400 text-xs mb-2 blink">SYSTEM WARNING</h2>
-                            <p class="font-arcade-body text-lg text-red-200">
-                                Please DO NOT attend if you have any symptoms of illness before or on this day.
-                            </p>
-                        </div>
-                    </section>
+        <!-- Mobile Controls Notice -->
+        <div
+          id="mobile-controls"
+          class="absolute bottom-2 left-0 w-full text-center hidden pointer-events-none"
+        >
+          <p class="font-arcade-body text-arcade-white/50 text-sm blink">
+            Drag finger to move paddle
+          </p>
+        </div>
+      </header>
 
-                </div>
-            </div>
+      <div class="p-6 md:p-8 space-y-8 bg-arcade-bg bg-opacity-90">
+        <!-- Event Date Strip -->
+        <div
+          class="w-full bg-arcade-cyan text-arcade-bg p-4 flex justify-between items-center font-arcade-title text-xs md:text-sm shadow-[4px_4px_0_0_#ff00ff]"
+        >
+          <span>STAGE 1: KALAMAZOO</span>
+          <span>SUN. JULY 19, 2026</span>
+        </div>
 
-            <section class="border-2 border-arcade-white border-dashed p-6 font-arcade-body text-xl">
-                <h2 class="font-arcade-title text-arcade-white text-sm mb-4">PLAYER GUIDE: ARRIVAL & ACCESSIBILITY</h2>
-                <div class="space-y-4 text-arcade-cyan">
-                    <p><span class="text-arcade-yellow">GENERAL:</span> Enter at front gate. Drive slowly to main parking. Walk into Nature Center involves stairs and a long ramp.</p>
-                    <p><span class="text-arcade-magenta">ACCESSIBILITY DROP-OFF:</span> To drop off food or people needing access, continue through parking lot, turn right down ramp to lower level. Entry door is on the right.</p>
-                    <p><span class="text-arcade-green">FACILITIES:</span> Inside on left is an elevator to the floor above (where singing & food will be). Restrooms on both levels.</p>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="space-y-8">
+            <!-- Venue Box -->
+            <section class="arcade-border p-6 bg-arcade-panel relative group">
+              <div
+                class="absolute -top-4 -right-4 bg-arcade-magenta text-arcade-white font-arcade-title text-xs px-3 py-2 blink shadow-neon-magenta transform rotate-3"
+              >
+                ! NEW VENUE !
+              </div>
+              <h2
+                class="font-arcade-title text-arcade-yellow text-sm md:text-base mb-4 border-b-2 border-arcade-yellow/30 pb-2"
+              >
+                LOCATION MAP
+              </h2>
+              <h3 class="font-arcade-body text-3xl text-arcade-white mb-2">
+                Kalamazoo Nature Center
+              </h3>
+              <p class="font-arcade-body text-xl text-arcade-green mb-4">
+                7000 North Westnedge Avenue<br />
+                Kalamazoo MI 49009
+              </p>
+              <div
+                class="bg-arcade-bg border border-arcade-cyan p-3 font-arcade-body text-lg text-arcade-cyan"
+              >
+                * System Note: All attendees have access to building/grounds
+                until 5:00 PM.
+              </div>
             </section>
 
-            <footer class="text-center pt-8 border-t-2 border-arcade-panel">
-                <p class="font-arcade-title text-xs text-gray-500 mb-4">MULTIPLAYER SUPPORT / CONTACTS</p>
-                <div class="flex flex-col md:flex-row justify-center items-center gap-4 font-arcade-body text-2xl text-arcade-white">
-                    <a href="mailto:marthabeverly@gmail.com" class="hover:text-arcade-cyan">marthabeverly@gmail.com</a>
-                    <span class="hidden md:inline text-arcade-magenta">||</span>
-                    <a href="mailto:will.fitzgerald@gmail.com" class="hover:text-arcade-cyan">will.fitzgerald@gmail.com</a>
-                </div>
-            </footer>
+            <!-- Singing Book Box -->
+            <section
+              class="border-2 border-arcade-yellow p-6 shadow-neon-yellow"
+            >
+              <h2 class="font-arcade-title text-arcade-yellow text-sm mb-4">
+                EQUIPMENT LOADOUT
+              </h2>
+              <p class="font-arcade-body text-2xl text-arcade-white">
+                Singing from:<br />
+                <span class="text-arcade-magenta font-bold"
+                  >2025 Edition of The Sacred Harp</span
+                >
+              </p>
+              <p class="font-arcade-body text-lg text-arcade-green mt-2">
+                > Loaners available in inventory
+              </p>
+            </section>
+          </div>
+
+          <div class="space-y-8">
+            <!-- Schedule Box -->
+            <section
+              class="border-2 border-arcade-green p-6 shadow-[4px_4px_0_0_#39ff14] bg-black"
+            >
+              <h2
+                class="font-arcade-title text-arcade-green text-sm mb-6 flex items-center gap-2"
+              >
+                <span class="text-xl">⏱</span> LEVEL TIMERS
+              </h2>
+              <ul class="font-arcade-body text-2xl space-y-4">
+                <li class="flex items-start gap-4">
+                  <span class="text-arcade-yellow w-24">09:00am</span>
+                  <div class="text-arcade-white">
+                    Gate Opens<br />
+                    <span class="text-arcade-cyan text-lg"
+                      >Free entry for players (singers)</span
+                    >
+                  </div>
+                </li>
+                <li
+                  class="flex items-start gap-4 border-t border-dashed border-gray-700 pt-4"
+                >
+                  <span class="text-arcade-yellow w-24">09:30am</span>
+                  <span class="text-arcade-white">Registration</span>
+                </li>
+                <li
+                  class="flex items-start gap-4 border-t border-dashed border-gray-700 pt-4"
+                >
+                  <span class="text-arcade-yellow w-24">10:00am</span>
+                  <span class="text-arcade-white"
+                    >Singing Begins (Main Event)</span
+                  >
+                </li>
+              </ul>
+            </section>
+
+            <!-- Dinner & Health Info -->
+            <section class="grid grid-cols-1 gap-4">
+              <div
+                class="bg-arcade-orange/20 border border-arcade-orange p-4 text-center"
+              >
+                <h2 class="font-arcade-title text-arcade-orange text-xs mb-2">
+                  POWER-UPS: DINNER
+                </h2>
+                <p class="font-arcade-body text-xl text-white">
+                  Local & regional singers: please support the mid-day meal with
+                  prepared food to share!
+                </p>
+              </div>
+
+              <div class="bg-red-900/40 border border-red-500 p-4">
+                <h2 class="font-arcade-title text-red-400 text-xs mb-2 blink">
+                  SYSTEM WARNING
+                </h2>
+                <p class="font-arcade-body text-lg text-red-200">
+                  Please DO NOT attend if you have any symptoms of illness
+                  before or on this day.
+                </p>
+              </div>
+            </section>
+          </div>
         </div>
+
+        <section
+          class="border-2 border-arcade-white border-dashed p-6 font-arcade-body text-xl"
+        >
+          <h2 class="font-arcade-title text-arcade-white text-sm mb-4">
+            PLAYER GUIDE: ARRIVAL & ACCESSIBILITY
+          </h2>
+          <div class="space-y-4 text-arcade-cyan">
+            <p>
+              <span class="text-arcade-yellow">GENERAL:</span> Enter at front
+              gate. Drive slowly to main parking. Walk into Nature Center
+              involves stairs and a long ramp.
+            </p>
+            <p>
+              <span class="text-arcade-magenta">ACCESSIBILITY DROP-OFF:</span>
+              To drop off food or people needing access, continue through
+              parking lot, turn right down ramp to lower level. Entry door is on
+              the right.
+            </p>
+            <p>
+              <span class="text-arcade-green">FACILITIES:</span> Inside on left
+              is an elevator to the floor above (where singing & food will be).
+              Restrooms on both levels.
+            </p>
+          </div>
+        </section>
+
+        <footer class="text-center pt-8 border-t-2 border-arcade-panel">
+          <p class="font-arcade-title text-xs text-gray-500 mb-4">
+            MULTIPLAYER SUPPORT / CONTACTS
+          </p>
+          <div
+            class="flex flex-col md:flex-row justify-center items-center gap-4 font-arcade-body text-2xl text-arcade-white"
+          >
+            <a
+              href="mailto:marthabeverly@gmail.com"
+              class="hover:text-arcade-cyan"
+              >marthabeverly@gmail.com</a
+            >
+            <span class="hidden md:inline text-arcade-magenta">||</span>
+            <a
+              href="mailto:will.fitzgerald@gmail.com"
+              class="hover:text-arcade-cyan"
+              >will.fitzgerald@gmail.com</a
+            >
+          </div>
+          <p class="mt-5 font-semibold">
+            <a
+              href="index.html"
+              class="inline-block px-3 py-1 rounded-md border border-gray-500 bg-gray-700 hover:bg-gray-600 no-underline text-white"
+              >Kalamazoo Sacred Harp</a
+            >
+          </p>
+        </footer>
+      </div>
     </main>
 
     <script>
-        window.addEventListener('load', () => {
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            const uiStart = document.getElementById('game-ui-start');
-            const uiOver = document.getElementById('game-ui-over');
-            const gameArea = document.getElementById('gameArea');
-            const btnRestart = document.getElementById('btn-restart');
-            const scoreDisplay = document.getElementById('final-score');
-            const mobileControls = document.getElementById('mobile-controls');
+      window.addEventListener("load", () => {
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const uiStart = document.getElementById("game-ui-start");
+        const uiOver = document.getElementById("game-ui-over");
+        const gameArea = document.getElementById("gameArea");
+        const btnRestart = document.getElementById("btn-restart");
+        const scoreDisplay = document.getElementById("final-score");
+        const mobileControls = document.getElementById("mobile-controls");
 
-            // Set canvas size
-            function resizeCanvas() {
-                canvas.width = gameArea.clientWidth;
-                canvas.height = gameArea.clientHeight;
-            }
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
+        // Set canvas size
+        function resizeCanvas() {
+          canvas.width = gameArea.clientWidth;
+          canvas.height = gameArea.clientHeight;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
 
-            // Game State
-            let gameState = 'START'; // START, PLAYING, OVER
-            let score = 0;
-            let lives = 3;
-            let shapes = [];
-            let frameCount = 0;
-            let animationId;
-            let baseSpeed = 2;
-            let spawnRate = 90; // frames between spawns
+        // Game State
+        let gameState = "START"; // START, PLAYING, OVER
+        let score = 0;
+        let lives = 3;
+        let shapes = [];
+        let frameCount = 0;
+        let animationId;
+        let baseSpeed = 2;
+        let spawnRate = 90; // frames between spawns
 
-            // Player Paddle
-            const player = {
-                w: 80,
-                h: 15,
-                x: canvas.width / 2 - 40,
-                y: canvas.height - 30,
-                speed: 8,
-                dx: 0,
-                color: '#f8f8ff'
-            };
+        // Player Paddle
+        const player = {
+          w: 80,
+          h: 15,
+          x: canvas.width / 2 - 40,
+          y: canvas.height - 30,
+          speed: 8,
+          dx: 0,
+          color: "#f8f8ff",
+        };
 
-            // Touch support for mobile
-            if ('ontouchstart' in window) {
-                mobileControls.classList.remove('hidden');
-            }
+        // Touch support for mobile
+        if ("ontouchstart" in window) {
+          mobileControls.classList.remove("hidden");
+        }
 
-            // Input Handling
-            let rightPressed = false;
-            let leftPressed = false;
-            let touchX = null;
+        // Input Handling
+        let rightPressed = false;
+        let leftPressed = false;
+        let touchX = null;
 
-            document.addEventListener('keydown', (e) => {
-                if(e.key === 'Right' || e.key === 'ArrowRight') rightPressed = true;
-                else if(e.key === 'Left' || e.key === 'ArrowLeft') leftPressed = true;
-            });
-            document.addEventListener('keyup', (e) => {
-                if(e.key === 'Right' || e.key === 'ArrowRight') rightPressed = false;
-                else if(e.key === 'Left' || e.key === 'ArrowLeft') leftPressed = false;
-            });
-
-            // Touch / Mouse interactions for paddle
-            gameArea.addEventListener('mousemove', (e) => {
-                if(gameState !== 'PLAYING') return;
-                const rect = canvas.getBoundingClientRect();
-                const mouseX = e.clientX - rect.left;
-                player.x = mouseX - player.w / 2;
-            });
-
-            gameArea.addEventListener('touchmove', (e) => {
-                if(gameState !== 'PLAYING') return;
-                e.preventDefault(); // prevent scrolling while playing
-                const rect = canvas.getBoundingClientRect();
-                const tX = e.touches[0].clientX - rect.left;
-                player.x = tX - player.w / 2;
-            }, {passive: false});
-
-            // Start Game listeners
-            uiStart.addEventListener('click', startGame);
-            uiStart.addEventListener('touchstart', startGame);
-            btnRestart.addEventListener('click', startGame);
-            btnRestart.addEventListener('touchstart', startGame);
-
-            // Shape Class
-            class Shape {
-                constructor() {
-                    this.size = 20 + Math.random() * 15;
-                    this.x = Math.random() * (canvas.width - this.size * 2) + this.size;
-                    this.y = -50;
-                    // Increase speed slightly based on score
-                    this.dy = baseSpeed + (score * 0.1) + (Math.random() * 1.5);
-                    this.type = Math.floor(Math.random() * 4); // 0:Fa, 1:Sol, 2:La, 3:Mi
-                    this.rotation = 0;
-                    this.rotSpeed = (Math.random() - 0.5) * 0.1;
-                    
-                    // Colors
-                    const colors = ['#00ffff', '#ff00ff', '#ffff00', '#39ff14'];
-                    this.color = colors[this.type];
-                }
-
-                draw() {
-                    ctx.save();
-                    ctx.translate(this.x, this.y);
-                    ctx.rotate(this.rotation);
-                    ctx.strokeStyle = this.color;
-                    ctx.lineWidth = 3;
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = this.color;
-                    ctx.beginPath();
-
-                    // Fa (Triangle)
-                    if (this.type === 0) {
-                        ctx.moveTo(0, -this.size);
-                        ctx.lineTo(this.size, this.size);
-                        ctx.lineTo(-this.size, this.size);
-                        ctx.closePath();
-                    } 
-                    // Sol (Oval)
-                    else if (this.type === 1) {
-                        ctx.ellipse(0, 0, this.size, this.size * 0.7, 0, 0, Math.PI * 2);
-                    }
-                    // La (Rectangle)
-                    else if (this.type === 2) {
-                        ctx.rect(-this.size, -this.size * 0.8, this.size * 2, this.size * 1.6);
-                    }
-                    // Mi (Diamond)
-                    else if (this.type === 3) {
-                        ctx.moveTo(0, -this.size);
-                        ctx.lineTo(this.size, 0);
-                        ctx.lineTo(0, this.size);
-                        ctx.lineTo(-this.size, 0);
-                        ctx.closePath();
-                    }
-
-                    ctx.stroke();
-                    ctx.restore();
-                }
-
-                update() {
-                    this.y += this.dy;
-                    this.rotation += this.rotSpeed;
-                    this.draw();
-                }
-            }
-
-            function startGame(e) {
-                if(e) e.preventDefault();
-                gameState = 'PLAYING';
-                score = 0;
-                lives = 3;
-                shapes = [];
-                frameCount = 0;
-                baseSpeed = 2;
-                spawnRate = 90;
-                
-                uiStart.classList.add('hidden');
-                uiOver.classList.add('hidden');
-                mobileControls.classList.add('hidden');
-                
-                // Center paddle
-                player.x = canvas.width / 2 - player.w / 2;
-                player.y = canvas.height - 30;
-
-                if(animationId) cancelAnimationFrame(animationId);
-                animate();
-            }
-
-            function gameOver() {
-                gameState = 'OVER';
-                scoreDisplay.textContent = score;
-                uiOver.classList.remove('hidden');
-            }
-
-            function drawPlayer() {
-                ctx.fillStyle = player.color;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#ffffff';
-                ctx.fillRect(player.x, player.y, player.w, player.h);
-                // Reset shadow
-                ctx.shadowBlur = 0;
-
-                // Move logic for keyboard
-                if(rightPressed && player.x < canvas.width - player.w) {
-                    player.x += player.speed;
-                }
-                else if(leftPressed && player.x > 0) {
-                    player.x -= player.speed;
-                }
-                
-                // Clamp to screen
-                if(player.x < 0) player.x = 0;
-                if(player.x + player.w > canvas.width) player.x = canvas.width - player.w;
-            }
-
-            function drawHUD() {
-                ctx.fillStyle = '#fff';
-                // Wait for VT323 to load, fallback to monospace
-                ctx.font = '24px "VT323", monospace';
-                ctx.textAlign = 'left';
-                ctx.fillText(`NOTES: ${score}`, 20, 35);
-                
-                ctx.textAlign = 'right';
-                let hearts = '';
-                for(let i=0; i<lives; i++) hearts += '♥ ';
-                ctx.fillStyle = '#ff00ff';
-                ctx.fillText(`LIVES: ${hearts}`, canvas.width - 20, 35);
-                
-                // Draw a faded title in the background
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-                ctx.textAlign = 'center';
-                ctx.font = '30px "Press Start 2P", cursive';
-                ctx.fillText('SACRED HARP', canvas.width/2, canvas.height/2);
-            }
-
-            function animate() {
-                if(gameState !== 'PLAYING') return;
-
-                // Clear canvas with trail effect
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                drawPlayer();
-                drawHUD();
-
-                // Spawn logic (spawn faster as score increases)
-                let currentSpawnRate = Math.max(30, spawnRate - (score * 2));
-                if (frameCount % currentSpawnRate === 0) {
-                    shapes.push(new Shape());
-                }
-
-                // Update & Collide Shapes
-                for (let i = shapes.length - 1; i >= 0; i--) {
-                    let s = shapes[i];
-                    s.update();
-
-                    // Collision detection (AABB approximations)
-                    let collisionBuffer = s.size;
-                    if (s.y + collisionBuffer > player.y && 
-                        s.y - collisionBuffer < player.y + player.h &&
-                        s.x + collisionBuffer > player.x && 
-                        s.x - collisionBuffer < player.x + player.w) {
-                        
-                        // Caught!
-                        score++;
-                        shapes.splice(i, 1);
-                        
-                        // Visual flash effect on catch
-                        ctx.fillStyle = s.color;
-                        ctx.globalAlpha = 0.5;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.globalAlpha = 1.0;
-                        
-                    } else if (s.y > canvas.height + s.size) {
-                        // Missed!
-                        lives--;
-                        shapes.splice(i, 1);
-                        
-                        // Flash red on miss
-                        ctx.fillStyle = 'red';
-                        ctx.globalAlpha = 0.3;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.globalAlpha = 1.0;
-
-                        if (lives <= 0) {
-                            gameOver();
-                        }
-                    }
-                }
-
-                frameCount++;
-                animationId = requestAnimationFrame(animate);
-            }
-            
-            // Initial Draw to show background
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
+          else if (e.key === "Left" || e.key === "ArrowLeft")
+            leftPressed = true;
         });
+        document.addEventListener("keyup", (e) => {
+          if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
+          else if (e.key === "Left" || e.key === "ArrowLeft")
+            leftPressed = false;
+        });
+
+        // Touch / Mouse interactions for paddle
+        gameArea.addEventListener("mousemove", (e) => {
+          if (gameState !== "PLAYING") return;
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          player.x = mouseX - player.w / 2;
+        });
+
+        gameArea.addEventListener(
+          "touchmove",
+          (e) => {
+            if (gameState !== "PLAYING") return;
+            e.preventDefault(); // prevent scrolling while playing
+            const rect = canvas.getBoundingClientRect();
+            const tX = e.touches[0].clientX - rect.left;
+            player.x = tX - player.w / 2;
+          },
+          { passive: false },
+        );
+
+        // Start Game listeners
+        uiStart.addEventListener("click", startGame);
+        uiStart.addEventListener("touchstart", startGame);
+        btnRestart.addEventListener("click", startGame);
+        btnRestart.addEventListener("touchstart", startGame);
+
+        // Shape Class
+        class Shape {
+          constructor() {
+            this.size = 20 + Math.random() * 15;
+            this.x = Math.random() * (canvas.width - this.size * 2) + this.size;
+            this.y = -50;
+            // Increase speed slightly based on score
+            this.dy = baseSpeed + score * 0.1 + Math.random() * 1.5;
+            this.type = Math.floor(Math.random() * 4); // 0:Fa, 1:Sol, 2:La, 3:Mi
+            this.rotation = 0;
+            this.rotSpeed = (Math.random() - 0.5) * 0.1;
+
+            // Colors
+            const colors = ["#00ffff", "#ff00ff", "#ffff00", "#39ff14"];
+            this.color = colors[this.type];
+          }
+
+          draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation);
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = this.color;
+            ctx.beginPath();
+
+            // Fa (Triangle)
+            if (this.type === 0) {
+              ctx.moveTo(0, -this.size);
+              ctx.lineTo(this.size, this.size);
+              ctx.lineTo(-this.size, this.size);
+              ctx.closePath();
+            }
+            // Sol (Oval)
+            else if (this.type === 1) {
+              ctx.ellipse(0, 0, this.size, this.size * 0.7, 0, 0, Math.PI * 2);
+            }
+            // La (Rectangle)
+            else if (this.type === 2) {
+              ctx.rect(
+                -this.size,
+                -this.size * 0.8,
+                this.size * 2,
+                this.size * 1.6,
+              );
+            }
+            // Mi (Diamond)
+            else if (this.type === 3) {
+              ctx.moveTo(0, -this.size);
+              ctx.lineTo(this.size, 0);
+              ctx.lineTo(0, this.size);
+              ctx.lineTo(-this.size, 0);
+              ctx.closePath();
+            }
+
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          update() {
+            this.y += this.dy;
+            this.rotation += this.rotSpeed;
+            this.draw();
+          }
+        }
+
+        function startGame(e) {
+          if (e) e.preventDefault();
+          gameState = "PLAYING";
+          score = 0;
+          lives = 3;
+          shapes = [];
+          frameCount = 0;
+          baseSpeed = 2;
+          spawnRate = 90;
+
+          uiStart.classList.add("hidden");
+          uiOver.classList.add("hidden");
+          mobileControls.classList.add("hidden");
+
+          // Center paddle
+          player.x = canvas.width / 2 - player.w / 2;
+          player.y = canvas.height - 30;
+
+          if (animationId) cancelAnimationFrame(animationId);
+          animate();
+        }
+
+        function gameOver() {
+          gameState = "OVER";
+          scoreDisplay.textContent = score;
+          uiOver.classList.remove("hidden");
+        }
+
+        function drawPlayer() {
+          ctx.fillStyle = player.color;
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = "#ffffff";
+          ctx.fillRect(player.x, player.y, player.w, player.h);
+          // Reset shadow
+          ctx.shadowBlur = 0;
+
+          // Move logic for keyboard
+          if (rightPressed && player.x < canvas.width - player.w) {
+            player.x += player.speed;
+          } else if (leftPressed && player.x > 0) {
+            player.x -= player.speed;
+          }
+
+          // Clamp to screen
+          if (player.x < 0) player.x = 0;
+          if (player.x + player.w > canvas.width)
+            player.x = canvas.width - player.w;
+        }
+
+        function drawHUD() {
+          ctx.fillStyle = "#fff";
+          // Wait for VT323 to load, fallback to monospace
+          ctx.font = '24px "VT323", monospace';
+          ctx.textAlign = "left";
+          ctx.fillText(`NOTES: ${score}`, 20, 35);
+
+          ctx.textAlign = "right";
+          let hearts = "";
+          for (let i = 0; i < lives; i++) hearts += "♥ ";
+          ctx.fillStyle = "#ff00ff";
+          ctx.fillText(`LIVES: ${hearts}`, canvas.width - 20, 35);
+
+          // Draw a faded title in the background
+          ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+          ctx.textAlign = "center";
+          ctx.font = '30px "Press Start 2P", cursive';
+          ctx.fillText("SACRED HARP", canvas.width / 2, canvas.height / 2);
+        }
+
+        function animate() {
+          if (gameState !== "PLAYING") return;
+
+          // Clear canvas with trail effect
+          ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          drawPlayer();
+          drawHUD();
+
+          // Spawn logic (spawn faster as score increases)
+          let currentSpawnRate = Math.max(30, spawnRate - score * 2);
+          if (frameCount % currentSpawnRate === 0) {
+            shapes.push(new Shape());
+          }
+
+          // Update & Collide Shapes
+          for (let i = shapes.length - 1; i >= 0; i--) {
+            let s = shapes[i];
+            s.update();
+
+            // Collision detection (AABB approximations)
+            let collisionBuffer = s.size;
+            if (
+              s.y + collisionBuffer > player.y &&
+              s.y - collisionBuffer < player.y + player.h &&
+              s.x + collisionBuffer > player.x &&
+              s.x - collisionBuffer < player.x + player.w
+            ) {
+              // Caught!
+              score++;
+              shapes.splice(i, 1);
+
+              // Visual flash effect on catch
+              ctx.fillStyle = s.color;
+              ctx.globalAlpha = 0.5;
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.globalAlpha = 1.0;
+            } else if (s.y > canvas.height + s.size) {
+              // Missed!
+              lives--;
+              shapes.splice(i, 1);
+
+              // Flash red on miss
+              ctx.fillStyle = "red";
+              ctx.globalAlpha = 0.3;
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.globalAlpha = 1.0;
+
+              if (lives <= 0) {
+                gameOver();
+              }
+            }
+          }
+
+          frameCount++;
+          animationId = requestAnimationFrame(animate);
+        }
+
+        // Initial Draw to show background
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      });
     </script>
-</body>
+  </body>
 </html>
