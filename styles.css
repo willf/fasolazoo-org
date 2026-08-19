@@ -85,6 +85,17 @@
   background-color: #4b5563;
 }
 
+.history-sources a {
+  color: var(--site-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.history-sources a:hover {
+  text-decoration-thickness: 2px;
+}
+
 a:focus-visible,
 button:focus-visible {
   outline: 2px solid #1d4ed8;
